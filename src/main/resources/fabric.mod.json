@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "ok-boomer",
+  "version": "${version}",
+
+  "name": "Ok Boomer",
+  "description": "Because the cool kids look really close at explosions",
+  "authors": [
+    "glisco"
+  ],
+  "contact": {},
+
+  "license": "MIT",
+  "icon": "assets/ok-boomer/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "io.wispforest.okboomer.OkBoomer"
+    ],
+    "modmenu": [
+      "io.wispforest.okboomer.compat.modmenu.OkModmenu"
+    ]
+  },
+
+  "mixins": [
+    "ok-boomer.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": "*",
+    "fabric": "*",
+    "minecraft": "1.19.x"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "text.config.ok-boomer.title": "OK Boomer Configuration",
+  "text.config.ok-boomer.option.useCinematicCamera": "Use Cinematic Camera when Booming",
+  "text.config.ok-boomer.option.enableScreenBooming": "Allow Booming in Screens",
+  "text.config.ok-boomer.option.boomScrollSensitivity": "Boom Scrolling Sensitivity",
+  "text.config.ok-boomer.option.boomTransition": "Boom Transition",
+  "text.config.ok-boomer.option.boomTransitionSpeed": "Boom Transition Speed",
+  "text.config.ok-boomer.category.boomLimits": "Boom Limits",
+  "text.config.ok-boomer.option.boomLimits.enableLimits": "Enable Limits",
+  "text.config.ok-boomer.option.boomLimits.allowBoomingOut": "Allow Booming Out",
+  "text.config.ok-boomer.option.boomLimits.maxBoom": "Maximum Boom",
+  "text.config.ok-boomer.option.boomLimits.maxScreenBoom": "Maximum Screen Boom"
+}
