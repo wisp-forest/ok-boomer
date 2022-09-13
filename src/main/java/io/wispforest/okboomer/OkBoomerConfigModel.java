@@ -1,9 +1,11 @@
 package io.wispforest.okboomer;
 
 import io.wispforest.owo.config.annotation.Config;
+import io.wispforest.owo.config.annotation.Modmenu;
 import io.wispforest.owo.config.annotation.Nest;
 import io.wispforest.owo.config.annotation.RangeConstraint;
 
+@Modmenu(modId = "ok-boomer")
 @Config(wrapperName = "OkConfig", name = "ok-boomer")
 public class OkBoomerConfigModel {
 
@@ -19,9 +21,9 @@ public class OkBoomerConfigModel {
     @RangeConstraint(min = .1, max = 5)
     public float boomScrollSensitivity = 1;
 
+    @Nest
     public BoomLimits boomLimits = new BoomLimits();
 
-    @Nest
     public static class BoomLimits {
 
         public boolean enableLimits = true;

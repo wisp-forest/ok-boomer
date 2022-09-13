@@ -8,7 +8,10 @@
   "authors": [
     "glisco"
   ],
-  "contact": {},
+  "contact": {
+    "sources": "https://github.com/gliscowo/ok-boomer",
+    "issues": "https://github.com/gliscowo/ok-boomer/issues"
+  },
 
   "license": "MIT",
   "icon": "assets/ok-boomer/icon.png",
@@ -17,9 +20,6 @@
   "entrypoints": {
     "client": [
       "io.wispforest.okboomer.OkBoomer"
-    ],
-    "modmenu": [
-      "io.wispforest.okboomer.compat.modmenu.OkModmenu"
     ]
   },
 

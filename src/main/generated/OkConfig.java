@@ -10,15 +10,15 @@ import java.util.function.Consumer;
 
 public class OkConfig extends ConfigWrapper<io.wispforest.okboomer.OkBoomerConfigModel> {
 
-    private static final Option.Key USECINEMATICCAMERA = new Option.Key("useCinematicCamera");
-    private static final Option.Key ENABLESCREENBOOMING = new Option.Key("enableScreenBooming");
-    private static final Option.Key BOOMTRANSITION = new Option.Key("boomTransition");
-    private static final Option.Key BOOMTRANSITIONSPEED = new Option.Key("boomTransitionSpeed");
-    private static final Option.Key BOOMSCROLLSENSITIVITY = new Option.Key("boomScrollSensitivity");
-    private static final Option.Key BOOMLIMITS_ENABLELIMITS = new Option.Key("boomLimits.enableLimits");
-    private static final Option.Key BOOMLIMITS_ALLOWBOOMINGOUT = new Option.Key("boomLimits.allowBoomingOut");
-    private static final Option.Key BOOMLIMITS_MAXBOOM = new Option.Key("boomLimits.maxBoom");
-    private static final Option.Key BOOMLIMITS_MAXSCREENBOOM = new Option.Key("boomLimits.maxScreenBoom");
+    private final Option<java.lang.Boolean> useCinematicCamera = this.optionForKey(new Option.Key("useCinematicCamera"));
+    private final Option<java.lang.Boolean> enableScreenBooming = this.optionForKey(new Option.Key("enableScreenBooming"));
+    private final Option<java.lang.Boolean> boomTransition = this.optionForKey(new Option.Key("boomTransition"));
+    private final Option<java.lang.Float> boomTransitionSpeed = this.optionForKey(new Option.Key("boomTransitionSpeed"));
+    private final Option<java.lang.Float> boomScrollSensitivity = this.optionForKey(new Option.Key("boomScrollSensitivity"));
+    private final Option<java.lang.Boolean> boomLimits_enableLimits = this.optionForKey(new Option.Key("boomLimits.enableLimits"));
+    private final Option<java.lang.Boolean> boomLimits_allowBoomingOut = this.optionForKey(new Option.Key("boomLimits.allowBoomingOut"));
+    private final Option<java.lang.Integer> boomLimits_maxBoom = this.optionForKey(new Option.Key("boomLimits.maxBoom"));
+    private final Option<java.lang.Integer> boomLimits_maxScreenBoom = this.optionForKey(new Option.Key("boomLimits.maxScreenBoom"));
 
     private OkConfig() {
         super(io.wispforest.okboomer.OkBoomerConfigModel.class);
@@ -31,86 +31,86 @@ public class OkConfig extends ConfigWrapper<io.wispforest.okboomer.OkBoomerConfi
     }
 
     public boolean useCinematicCamera() {
-        return instance.useCinematicCamera;
+        return useCinematicCamera.value();
     }
 
     public void useCinematicCamera(boolean value) {
         instance.useCinematicCamera = value;
-        options.get(USECINEMATICCAMERA).synchronizeWithBackingField();
+        useCinematicCamera.synchronizeWithBackingField();
     }
 
     public boolean enableScreenBooming() {
-        return instance.enableScreenBooming;
+        return enableScreenBooming.value();
     }
 
     public void enableScreenBooming(boolean value) {
         instance.enableScreenBooming = value;
-        options.get(ENABLESCREENBOOMING).synchronizeWithBackingField();
+        enableScreenBooming.synchronizeWithBackingField();
     }
 
     public boolean boomTransition() {
-        return instance.boomTransition;
+        return boomTransition.value();
     }
 
     public void boomTransition(boolean value) {
         instance.boomTransition = value;
-        options.get(BOOMTRANSITION).synchronizeWithBackingField();
+        boomTransition.synchronizeWithBackingField();
     }
 
     public float boomTransitionSpeed() {
-        return instance.boomTransitionSpeed;
+        return boomTransitionSpeed.value();
     }
 
     public void boomTransitionSpeed(float value) {
         instance.boomTransitionSpeed = value;
-        options.get(BOOMTRANSITIONSPEED).synchronizeWithBackingField();
+        boomTransitionSpeed.synchronizeWithBackingField();
     }
 
     public float boomScrollSensitivity() {
-        return instance.boomScrollSensitivity;
+        return boomScrollSensitivity.value();
     }
 
     public void boomScrollSensitivity(float value) {
         instance.boomScrollSensitivity = value;
-        options.get(BOOMSCROLLSENSITIVITY).synchronizeWithBackingField();
+        boomScrollSensitivity.synchronizeWithBackingField();
     }
 
     public final BoomLimits boomLimits = new BoomLimits();
     public class BoomLimits {
         public boolean enableLimits() {
-            return instance.boomLimits.enableLimits;
+            return boomLimits_enableLimits.value();
         }
 
         public void enableLimits(boolean value) {
             instance.boomLimits.enableLimits = value;
-            options.get(BOOMLIMITS_ENABLELIMITS).synchronizeWithBackingField();
+            boomLimits_enableLimits.synchronizeWithBackingField();
         }
 
         public boolean allowBoomingOut() {
-            return instance.boomLimits.allowBoomingOut;
+            return boomLimits_allowBoomingOut.value();
         }
 
         public void allowBoomingOut(boolean value) {
             instance.boomLimits.allowBoomingOut = value;
-            options.get(BOOMLIMITS_ALLOWBOOMINGOUT).synchronizeWithBackingField();
+            boomLimits_allowBoomingOut.synchronizeWithBackingField();
         }
 
         public int maxBoom() {
-            return instance.boomLimits.maxBoom;
+            return boomLimits_maxBoom.value();
         }
 
         public void maxBoom(int value) {
             instance.boomLimits.maxBoom = value;
-            options.get(BOOMLIMITS_MAXBOOM).synchronizeWithBackingField();
+            boomLimits_maxBoom.synchronizeWithBackingField();
         }
 
         public int maxScreenBoom() {
-            return instance.boomLimits.maxScreenBoom;
+            return boomLimits_maxScreenBoom.value();
         }
 
         public void maxScreenBoom(int value) {
             instance.boomLimits.maxScreenBoom = value;
-            options.get(BOOMLIMITS_MAXSCREENBOOM).synchronizeWithBackingField();
+            boomLimits_maxScreenBoom.synchronizeWithBackingField();
         }
 
     }
