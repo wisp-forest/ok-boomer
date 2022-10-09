@@ -71,9 +71,9 @@ public abstract class GameRendererMixin {
             this.boom$lastMouseX += .65 * (mouseX - this.boom$lastMouseX) * MinecraftClient.getInstance().getLastFrameDuration();
             this.boom$lastMouseY += .65 * (mouseY - this.boom$lastMouseY) * MinecraftClient.getInstance().getLastFrameDuration();
 
-            this.boom$lastScreenBoom = boom$nudgeToZero(this.boom$lastScreenBoom);
-            this.boom$lastMouseX = boom$nudgeToZero(this.boom$lastMouseX);
-            this.boom$lastMouseY = boom$nudgeToZero(this.boom$lastMouseY);
+            this.boom$lastScreenBoom = boom$nudge(this.boom$lastScreenBoom, 1);
+            this.boom$lastMouseX = boom$nudge(this.boom$lastMouseX, mouseX);
+            this.boom$lastMouseY = boom$nudge(this.boom$lastMouseY, mouseY);
         } else {
             this.boom$lastScreenBoom = (float) OkBoomer.screenBoom;
             this.boom$lastMouseX = mouseX;
@@ -108,8 +108,8 @@ public abstract class GameRendererMixin {
         RenderSystem.applyModelViewMatrix();
     }
 
-    private static float boom$nudgeToZero(float value) {
-        return value < 0.005 ? 0 : value;
+    private static float boom$nudge(float value, float to) {
+        return Math.abs(to - value) < 0.005 ? to : value;
     }
 
     private static float boom$interpolator() {
