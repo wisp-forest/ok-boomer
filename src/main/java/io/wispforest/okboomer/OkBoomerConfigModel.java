@@ -1,9 +1,6 @@
 package io.wispforest.okboomer;
 
-import io.wispforest.owo.config.annotation.Config;
-import io.wispforest.owo.config.annotation.Modmenu;
-import io.wispforest.owo.config.annotation.Nest;
-import io.wispforest.owo.config.annotation.RangeConstraint;
+import io.wispforest.owo.config.annotation.*;
 
 @Modmenu(modId = "ok-boomer")
 @Config(wrapperName = "OkConfig", name = "ok-boomer")
@@ -36,5 +33,8 @@ public class OkBoomerConfigModel {
         @RangeConstraint(min = 5, max = 25)
         public int maxScreenBoom = 5;
     }
+
+    @ExcludeFromScreen
+    public boolean iDoNotEndorseTomfoolery = false;
 
 }
