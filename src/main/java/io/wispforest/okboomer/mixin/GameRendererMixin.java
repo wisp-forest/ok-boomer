@@ -5,24 +5,31 @@ import io.wispforest.okboomer.OkBoomer;
 import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.util.Drawer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-    private double boom$lastBoomDivisor = OkBoomer.boomDivisor;
+    @Unique private double boom$lastBoomDivisor = OkBoomer.boomDivisor;
 
-    private float boom$lastScreenBoom = (float) OkBoomer.screenBoom;
-    private float boom$lastMouseX = 0, boom$lastMouseY = 0;
-    private boolean boom$screenBoomEnabled = false;
+    @Unique private float boom$lastScreenBoom = (float) OkBoomer.screenBoom;
+    @Unique private float boom$lastMouseX = 0, boom$lastMouseY = 0;
+    @Unique private boolean boom$screenBoomEnabled = false;
+
+    @Unique private final MatrixStack boom$rotat = new MatrixStack();
+    @Unique private final Vector4f boom$mouseVec = new Vector4f();
 
     @ModifyVariable(method = "getFov", at = @At(value = "RETURN", shift = At.Shift.BEFORE), ordinal = 0)
     private double injectBoomer(double fov) {
@@ -63,10 +70,16 @@ public abstract class GameRendererMixin {
         modelViewStack.scale(this.boom$lastScreenBoom, this.boom$lastScreenBoom, 1);
         modelViewStack.translate(-this.boom$lastMouseX, -this.boom$lastMouseY, 0);
 
-//        var window = MinecraftClient.getInstance().getWindow();
-//        modelViewStack.translate(window.getScaledWidth() / 2f, window.getScaledHeight() / 2f, 0);
-//        modelViewStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(OkBoomer.screenRotation));
-//        modelViewStack.translate(window.getScaledWidth() / -2f, window.getScaledHeight() / -2f, 0);
+        var window = MinecraftClient.getInstance().getWindow();
+        this.boom$rotat.loadIdentity();
+        this.boom$rotat.translate(window.getScaledWidth() / 2f, window.getScaledHeight() / 2f, 0);
+        this.boom$rotat.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(OkBoomer.screenRotation));
+        this.boom$rotat.translate(window.getScaledWidth() / -2f, window.getScaledHeight() / -2f, 0);
+
+        modelViewStack.multiplyPositionMatrix(this.boom$rotat.peek().getPositionMatrix());
+
+        this.boom$rotat.peek().getPositionMatrix().invert();
+        OkBoomer.mouseTransform = this.boom$rotat.peek().getPositionMatrix();
 
         RenderSystem.applyModelViewMatrix();
 
@@ -125,19 +138,14 @@ public abstract class GameRendererMixin {
         matrixStack.pop();
     }
 
-//    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;render(Lnet/minecraft/client/util/math/MatrixStack;IIF)V"))
-//    private void transformMouse(Args args) {
-//        var matrix = RenderSystem.getModelViewMatrix().copy();
-//        matrix.invert();
-//
-//        OkBoomer.mouseTransform = matrix;
-//
-//        var mouse = new Vector4f(args.<Number>get(1).floatValue(), args.<Number>get(2).floatValue(), 0, 1);
-//        mouse.transform(matrix);
-//
-//        args.set(1, ((Number) mouse.getX()).intValue());
-//        args.set(2, ((Number) mouse.getY()).intValue());
-//    }
+    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;render(Lnet/minecraft/client/util/math/MatrixStack;IIF)V"))
+    private void transformMouse(Args args) {
+        this.boom$mouseVec.set(args.<Number>get(1).floatValue(), args.<Number>get(2).floatValue(), 0, 1);
+        this.boom$mouseVec.transform(OkBoomer.mouseTransform);
+
+        args.set(1, ((Number) this.boom$mouseVec.getX()).intValue());
+        args.set(2, ((Number) this.boom$mouseVec.getY()).intValue());
+    }
 
     @Inject(
             method = "render",

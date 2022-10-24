@@ -1,4 +1,19 @@
 {
+  "text.ok-boomer.prefix": [
+    "",
+    { "text": "[", "color": "dark_gray" },
+    { "text": "OK ", "color": "#bb1a34" },
+    { "text": "Boomer", "color": "#fcab40" },
+    { "text": "]", "color": "dark_gray" }
+  ],
+  "key.ok-boomer.boom": [
+    { "translate": "text.ok-boomer.prefix" },
+    " Boom"
+  ],
+  "key.ok-boomer.rotat": [
+    { "translate": "text.ok-boomer.prefix" },
+    " Rotat"
+  ],
   "text.config.ok-boomer.title": "OK Boomer Configuration",
   "text.config.ok-boomer.option.useCinematicCamera": "Use Cinematic Camera when Booming",
   "text.config.ok-boomer.option.enableScreenBooming": "Allow Booming in Screens",
