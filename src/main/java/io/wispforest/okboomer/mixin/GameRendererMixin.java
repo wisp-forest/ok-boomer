@@ -4,11 +4,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.wispforest.okboomer.OkBoomer;
 import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.util.Drawer;
+import net.minecraft.class_7833;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.math.Vector4f;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -73,7 +73,7 @@ public abstract class GameRendererMixin {
         var window = MinecraftClient.getInstance().getWindow();
         this.boom$rotat.loadIdentity();
         this.boom$rotat.translate(window.getScaledWidth() / 2f, window.getScaledHeight() / 2f, 0);
-        this.boom$rotat.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(OkBoomer.screenRotation));
+        this.boom$rotat.multiply(class_7833.field_40718.rotationDegrees(OkBoomer.screenRotation));
         this.boom$rotat.translate(window.getScaledWidth() / -2f, window.getScaledHeight() / -2f, 0);
 
         modelViewStack.multiplyPositionMatrix(this.boom$rotat.peek().getPositionMatrix());
@@ -119,7 +119,7 @@ public abstract class GameRendererMixin {
                 0,
                 0,
                 window.getScaledWidth(),
-                -textRenderer.fontHeight - 2,
+                (-textRenderer.fontHeight - 2) * 3,
                 Color.BLACK.argb()
         );
 
@@ -127,24 +127,36 @@ public abstract class GameRendererMixin {
                 0,
                 window.getScaledHeight(),
                 window.getScaledWidth(),
-                window.getScaledHeight() + textRenderer.fontHeight + 2,
+                window.getScaledHeight() + (textRenderer.fontHeight + 2) * 3,
                 Color.BLACK.argb()
         );
 
-        float factor = window.getScaledWidth() / (textRenderer.getWidth("Bottom Text") + 2f);
+        var bottom_text = "Bottom Text";
+        var oneRotat = Math.abs(OkBoomer.screenRotation % 360f);
+
+        if (oneRotat > 22.5 + 0) bottom_text = "Corner Text";
+        if (oneRotat > 22.5 + 45) bottom_text = "Side Text";
+        if (oneRotat > 22.5 + 90) bottom_text = "Corner Text";
+        if (oneRotat > 22.5 + 135) bottom_text = "Top Text";
+        if (oneRotat > 22.5 + 180) bottom_text = "Corner Text";
+        if (oneRotat > 22.5 + 225) bottom_text = "Side Text";
+        if (oneRotat > 22.5 + 270) bottom_text = "Corner Text";
+        if (oneRotat > 22.5 + 315) bottom_text = "Bottom Text";
+
+        float factor = window.getScaledWidth() / (textRenderer.getWidth(bottom_text) + 2f);
         matrixStack.push();
-        matrixStack.scale(factor, 1, 1);
-        textRenderer.draw(matrixStack, "Bottom Text", 1, window.getScaledHeight() + 2, Color.WHITE.argb());
+        matrixStack.scale(factor, 3, 1);
+        textRenderer.draw(matrixStack, bottom_text, 1, (window.getScaledHeight() + 6) / 3f, Color.WHITE.argb());
         matrixStack.pop();
     }
 
     @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;render(Lnet/minecraft/client/util/math/MatrixStack;IIF)V"))
     private void transformMouse(Args args) {
         this.boom$mouseVec.set(args.<Number>get(1).floatValue(), args.<Number>get(2).floatValue(), 0, 1);
-        this.boom$mouseVec.transform(OkBoomer.mouseTransform);
+        this.boom$mouseVec.mul(OkBoomer.mouseTransform);
 
-        args.set(1, ((Number) this.boom$mouseVec.getX()).intValue());
-        args.set(2, ((Number) this.boom$mouseVec.getY()).intValue());
+        args.set(1, ((Number) this.boom$mouseVec.x).intValue());
+        args.set(2, ((Number) this.boom$mouseVec.y).intValue());
     }
 
     @Inject(

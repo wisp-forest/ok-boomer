@@ -3,7 +3,7 @@ package io.wispforest.okboomer.mixin;
 import io.wispforest.okboomer.OkBoomer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
-import net.minecraft.util.math.Vector4f;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,34 +21,37 @@ public class MouseMixin {
     @ModifyArgs(method = "method_1611", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(DDI)Z"))
     private static void transformMouseDownCoordinates(Args args) {
         boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0, 1);
-        boom$mouseVec.transform(OkBoomer.mouseTransform);
+        boom$mouseVec.mul(OkBoomer.mouseTransform);
 
-        args.set(0, ((Number) boom$mouseVec.getX()).doubleValue());
-        args.set(1, ((Number) boom$mouseVec.getY()).doubleValue());
+        args.set(0, ((Number) boom$mouseVec.x).doubleValue());
+        args.set(1, ((Number) boom$mouseVec.y).doubleValue());
     }
 
     @ModifyArgs(method = "method_1605", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(DDI)Z"))
     private static void transformMouseUpCoordinates(Args args) {
         boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0, 1);
-        boom$mouseVec.transform(OkBoomer.mouseTransform);
+        boom$mouseVec.mul(OkBoomer.mouseTransform);
 
-        args.set(0, ((Number) boom$mouseVec.getX()).doubleValue());
-        args.set(1, ((Number) boom$mouseVec.getY()).doubleValue());
+        args.set(0, ((Number) boom$mouseVec.x).doubleValue());
+        args.set(1, ((Number) boom$mouseVec.y).doubleValue());
     }
 
     @ModifyArgs(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDD)Z"))
     private void transformMouseScrollCoordinates(Args args) {
         boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0, 1);
-        boom$mouseVec.transform(OkBoomer.mouseTransform);
+        boom$mouseVec.mul(OkBoomer.mouseTransform);
 
-        args.set(0, ((Number) boom$mouseVec.getX()).doubleValue());
-        args.set(1, ((Number) boom$mouseVec.getY()).doubleValue());
+        args.set(0, ((Number) boom$mouseVec.x).doubleValue());
+        args.set(1, ((Number) boom$mouseVec.y).doubleValue());
     }
 
     @Inject(method = "onMouseScroll", at = @At("HEAD"), cancellable = true)
     private void scrollBoomer(long window, double horizontal, double vertical, CallbackInfo ci) {
         if (MinecraftClient.getInstance().currentScreen != null) {
-            if (OkBoomer.currentlyScreenBooming) {
+            if (OkBoomer.currentlyRotatIng) {
+                OkBoomer.screenRotation += vertical;
+                ci.cancel();
+            } else if (OkBoomer.currentlyScreenBooming) {
                 OkBoomer.screenBoom = Math.min(
                         Math.max(
                                 OkBoomer.minBoom(),
@@ -56,12 +59,8 @@ public class MouseMixin {
                         ),
                         OkBoomer.maxScreenBoom()
                 );
+                ci.cancel();
             }
-
-            if (OkBoomer.currentlyRotatIng) {
-                OkBoomer.screenRotation += vertical;
-            }
-            ci.cancel();
         } else if (OkBoomer.booming) {
             OkBoomer.boomDivisor = Math.min(
                     Math.max(
