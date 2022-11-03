@@ -4,10 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.wispforest.okboomer.OkBoomer;
 import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.util.Drawer;
-import net.minecraft.class_7833;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.RotationAxis;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -73,7 +73,7 @@ public abstract class GameRendererMixin {
         var window = MinecraftClient.getInstance().getWindow();
         this.boom$rotat.loadIdentity();
         this.boom$rotat.translate(window.getScaledWidth() / 2f, window.getScaledHeight() / 2f, 0);
-        this.boom$rotat.multiply(class_7833.field_40718.rotationDegrees(OkBoomer.screenRotation));
+        this.boom$rotat.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(OkBoomer.screenRotation));
         this.boom$rotat.translate(window.getScaledWidth() / -2f, window.getScaledHeight() / -2f, 0);
 
         modelViewStack.multiplyPositionMatrix(this.boom$rotat.peek().getPositionMatrix());
