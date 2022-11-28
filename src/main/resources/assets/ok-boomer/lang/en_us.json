@@ -14,7 +14,10 @@
     { "translate": "text.ok-boomer.prefix" },
     " Rotat"
   ],
-  "text.config.ok-boomer.title": "OK Boomer Configuration",
+  "text.config.ok-boomer.title": [
+    { "translate": "text.ok-boomer.prefix" },
+    " Configuration"
+  ],
   "text.config.ok-boomer.option.useCinematicCamera": "Use Cinematic Camera when Booming",
   "text.config.ok-boomer.option.enableScreenBooming": "Allow Booming in Screens",
   "text.config.ok-boomer.option.boomScrollSensitivity": "Boom Scrolling Sensitivity",
