@@ -63,7 +63,7 @@ public class OkBoomer implements ClientModInitializer {
                     boomDivisor = 1;
                     client.options.smoothCameraEnabled = smoothCameraRestoreValue;
                 } else {
-                    boomDivisor = 7.5;
+                    boomDivisor = CONFIG.defaultBoom();
                     smoothCameraRestoreValue = client.options.smoothCameraEnabled;
 
                     if (CONFIG.useCinematicCamera()) {
