@@ -110,6 +110,7 @@ public abstract class GameRendererMixin {
     @SuppressWarnings("InvalidInjectorMethodSignature")
     private void bottomText(float tickDelta, long startTime, boolean tick, CallbackInfo ci, int i, int j, MatrixStack matrixStack) {
         if (OkBoomer.CONFIG.iDoNotEndorseTomfoolery()) return;
+        if (this.boom$lastScreenBoom <= 1 && OkBoomer.screenRotation == 0) return;
 
         var client = MinecraftClient.getInstance();
         var window = client.getWindow();
