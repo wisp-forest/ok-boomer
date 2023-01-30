@@ -53,12 +53,11 @@ public class OkBoomer implements ClientModInitializer {
                     && InputUtil.isKeyPressed(client.getWindow().getHandle(), KeyBindingHelper.getBoundKeyOf(ROTAT_BINDING).getCode())
                     && ((Screen.hasControlDown() && Screen.hasShiftDown()) || currentlyRotatIng);
 
-            if (booming != BOOM_BINDING.isPressed()) {
-                boolean nowBooming = false;
-                while (BOOM_BINDING.wasPressed()) {
-                    nowBooming = true;
-                }
+            boolean nowBooming = KeyBindingHelper.getBoundKeyOf(BOOM_BINDING).getCode() > 0
+                    && InputUtil.isKeyPressed(client.getWindow().getHandle(), KeyBindingHelper.getBoundKeyOf(BOOM_BINDING).getCode())
+                    && client.currentScreen == null;
 
+            if (booming != nowBooming) {
                 if (booming) {
                     boomDivisor = 1;
                     client.options.smoothCameraEnabled = smoothCameraRestoreValue;
