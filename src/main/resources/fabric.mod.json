@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "Ok Boomer",
-  "description": "Because the cool kids look really close at explosions",
+  "description": "Because the cool kids look really close at explosions.\nA no-nonsense zoom mod with configurable in-game and in-screen zoom capabilities",
   "authors": [
     "glisco"
   ],
