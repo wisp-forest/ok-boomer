@@ -1,10 +1,12 @@
 package io.wispforest.okboomer;
 
+import io.wispforest.okboomer.mixin.MouseAccessor;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -45,16 +47,13 @@ public class OkBoomer implements ClientModInitializer {
     public void onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             currentlyScreenBooming = OkBoomer.CONFIG.enableScreenBooming()
-                    && KeyBindingHelper.getBoundKeyOf(BOOM_BINDING).getCode() > 0
-                    && InputUtil.isKeyPressed(client.getWindow().getHandle(), KeyBindingHelper.getBoundKeyOf(BOOM_BINDING).getCode())
+                    && isPressed(BOOM_BINDING)
                     && ((Screen.hasControlDown() && Screen.hasShiftDown()) || currentlyScreenBooming);
 
-            currentlyRotatIng = KeyBindingHelper.getBoundKeyOf(ROTAT_BINDING).getCode() > 0
-                    && InputUtil.isKeyPressed(client.getWindow().getHandle(), KeyBindingHelper.getBoundKeyOf(ROTAT_BINDING).getCode())
+            currentlyRotatIng = isPressed(ROTAT_BINDING)
                     && ((Screen.hasControlDown() && Screen.hasShiftDown()) || currentlyRotatIng);
 
-            boolean nowBooming = KeyBindingHelper.getBoundKeyOf(BOOM_BINDING).getCode() > 0
-                    && InputUtil.isKeyPressed(client.getWindow().getHandle(), KeyBindingHelper.getBoundKeyOf(BOOM_BINDING).getCode())
+            boolean nowBooming = isPressed(BOOM_BINDING)
                     && client.currentScreen == null;
 
             if (booming != nowBooming) {
@@ -73,6 +72,22 @@ public class OkBoomer implements ClientModInitializer {
                 booming = nowBooming;
             }
         });
+    }
+
+    private static boolean isPressed(KeyBinding binding) {
+        var boundKey = KeyBindingHelper.getBoundKeyOf(binding);
+        if (boundKey.getCode() < 0) return false;
+
+        var windowHandle = MinecraftClient.getInstance().getWindow().getHandle();
+        if (boundKey.getCategory() == InputUtil.Type.KEYSYM) {
+            return InputUtil.isKeyPressed(windowHandle, boundKey.getCode());
+        }
+
+        if (boundKey.getCategory() == InputUtil.Type.MOUSE) {
+            return ((MouseAccessor) MinecraftClient.getInstance().mouse).boom$getActiveButton() == boundKey.getCode();
+        }
+
+        return false;
     }
 
     public static int minBoom() {
