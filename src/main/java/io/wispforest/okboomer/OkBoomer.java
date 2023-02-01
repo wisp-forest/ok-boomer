@@ -27,11 +27,7 @@ public class OkBoomer implements ClientModInitializer {
 
     public static boolean currentlyRotatIng = false;
 
-    public static Matrix4f mouseTransform = new Matrix4f();
-
-    static {
-        mouseTransform.identity();
-    }
+    public static Matrix4f mouseTransform = new Matrix4f().identity();
 
     private static boolean smoothCameraRestoreValue = false;
 
