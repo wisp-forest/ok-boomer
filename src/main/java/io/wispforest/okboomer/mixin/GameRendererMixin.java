@@ -22,6 +22,8 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
+    @Unique private static final MatrixStack BOOM$BOTTOM_STACK = new MatrixStack();
+
     @Unique private double boom$lastBoomDivisor = OkBoomer.boomDivisor;
 
     @Unique private float boom$lastScreenBoom = (float) OkBoomer.screenBoom;
@@ -110,13 +112,13 @@ public abstract class GameRendererMixin {
     @SuppressWarnings("InvalidInjectorMethodSignature")
     private void bottomText(float tickDelta, long startTime, boolean tick, CallbackInfo ci, int i, int j, MatrixStack matrixStack) {
         if (OkBoomer.CONFIG.iDoNotEndorseTomfoolery()) return;
-        if (this.boom$lastScreenBoom <= 1 && OkBoomer.screenRotation == 0) return;
+        if (this.boom$lastScreenBoom >= 1 && OkBoomer.screenRotation == 0) return;
 
         var client = MinecraftClient.getInstance();
         var window = client.getWindow();
         var textRenderer = client.textRenderer;
 
-        Drawer.fill(matrixStack,
+        Drawer.fill(BOOM$BOTTOM_STACK,
                 0,
                 0,
                 window.getScaledWidth(),
@@ -124,7 +126,7 @@ public abstract class GameRendererMixin {
                 Color.BLACK.argb()
         );
 
-        Drawer.fill(matrixStack,
+        Drawer.fill(BOOM$BOTTOM_STACK,
                 0,
                 window.getScaledHeight(),
                 window.getScaledWidth(),
@@ -145,10 +147,10 @@ public abstract class GameRendererMixin {
         if (oneRotat > 22.5 + 315) bottom_text = "Bottom Text";
 
         float factor = window.getScaledWidth() / (textRenderer.getWidth(bottom_text) + 2f);
-        matrixStack.push();
-        matrixStack.scale(factor, 3, 1);
-        textRenderer.draw(matrixStack, bottom_text, 1, (window.getScaledHeight() + 6) / 3f, Color.WHITE.argb());
-        matrixStack.pop();
+        BOOM$BOTTOM_STACK.push();
+        BOOM$BOTTOM_STACK.scale(factor, 3, 1);
+        textRenderer.draw(BOOM$BOTTOM_STACK, bottom_text, 1, (window.getScaledHeight() + 6) / 3f, Color.WHITE.argb());
+        BOOM$BOTTOM_STACK.pop();
     }
 
     @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/util/math/MatrixStack;IIF)V"))
