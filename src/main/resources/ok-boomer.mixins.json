@@ -6,7 +6,8 @@
   "client": [
     "GameRendererMixin",
     "KeyBindingMixin",
-    "MouseMixin"
+    "MouseMixin",
+    "DrawableHelperMixin"
   ],
   "injectors": {
     "defaultRequire": 1
