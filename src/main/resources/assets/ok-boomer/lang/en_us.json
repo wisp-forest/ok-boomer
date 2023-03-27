@@ -10,6 +10,10 @@
     { "translate": "text.ok-boomer.prefix" },
     " Boom"
   ],
+  "key.ok-boomer.screen_boom": [
+    { "translate": "text.ok-boomer.prefix" },
+    " Screen Boom"
+  ],
   "key.ok-boomer.rotat": [
     { "translate": "text.ok-boomer.prefix" },
     " Rotat"

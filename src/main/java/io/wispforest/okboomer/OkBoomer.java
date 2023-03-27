@@ -35,6 +35,10 @@ public class OkBoomer implements ClientModInitializer {
             new KeyBinding("key.ok-boomer.boom", GLFW.GLFW_KEY_C, KeyBinding.MISC_CATEGORY)
     );
 
+    public static final KeyBinding SCREEN_BOOM_BINDING = KeyBindingHelper.registerKeyBinding(
+            new KeyBinding("key.ok-boomer.screen_boom", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.MISC_CATEGORY)
+    );
+
     public static final KeyBinding ROTAT_BINDING = KeyBindingHelper.registerKeyBinding(
             new KeyBinding("key.ok-boomer.rotat", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.MISC_CATEGORY)
     );
@@ -42,9 +46,13 @@ public class OkBoomer implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            currentlyScreenBooming = OkBoomer.CONFIG.enableScreenBooming()
-                    && isPressed(BOOM_BINDING)
-                    && ((Screen.hasControlDown() && Screen.hasShiftDown()) || currentlyScreenBooming);
+            if (SCREEN_BOOM_BINDING.isUnbound()) {
+                currentlyScreenBooming = OkBoomer.CONFIG.enableScreenBooming()
+                        && isPressed(BOOM_BINDING)
+                        && ((Screen.hasControlDown() && Screen.hasShiftDown()) || currentlyScreenBooming);
+            } else {
+                currentlyScreenBooming = OkBoomer.CONFIG.enableScreenBooming() && isPressed(SCREEN_BOOM_BINDING);
+            }
 
             currentlyRotatIng = isPressed(ROTAT_BINDING)
                     && ((Screen.hasControlDown() && Screen.hasShiftDown()) || currentlyRotatIng);
