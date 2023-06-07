@@ -30,7 +30,7 @@
   "depends": {
     "fabricloader": "*",
     "fabric": "*",
-    "minecraft": "1.19.x",
+    "minecraft": "1.20.x",
     "owo-lib": ">=0.9.0"
   }
 }

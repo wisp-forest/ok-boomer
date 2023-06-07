@@ -3,8 +3,8 @@ package io.wispforest.okboomer.mixin;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.wispforest.okboomer.OkBoomer;
 import io.wispforest.owo.ui.core.Color;
-import io.wispforest.owo.ui.util.Drawer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
@@ -22,16 +22,20 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-    @Unique private static final MatrixStack BOOM$BOTTOM_STACK = new MatrixStack();
+    @Unique
+    private double boom$lastBoomDivisor = OkBoomer.boomDivisor;
 
-    @Unique private double boom$lastBoomDivisor = OkBoomer.boomDivisor;
+    @Unique
+    private float boom$lastScreenBoom = (float) OkBoomer.screenBoom;
+    @Unique
+    private float boom$lastMouseX = 0, boom$lastMouseY = 0;
+    @Unique
+    private boolean boom$screenBoomEnabled = false;
 
-    @Unique private float boom$lastScreenBoom = (float) OkBoomer.screenBoom;
-    @Unique private float boom$lastMouseX = 0, boom$lastMouseY = 0;
-    @Unique private boolean boom$screenBoomEnabled = false;
-
-    @Unique private final MatrixStack boom$rotat = new MatrixStack();
-    @Unique private final Vector4f boom$mouseVec = new Vector4f();
+    @Unique
+    private final MatrixStack boom$rotat = new MatrixStack();
+    @Unique
+    private final Vector4f boom$mouseVec = new Vector4f();
 
     @ModifyVariable(method = "getFov", at = @At(value = "RETURN", shift = At.Shift.BEFORE), ordinal = 0)
     private double injectBoomer(double fov) {
@@ -104,13 +108,15 @@ public abstract class GameRendererMixin {
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/util/math/MatrixStack;IIF)V",
+                    target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V",
                     shift = At.Shift.AFTER
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     @SuppressWarnings("InvalidInjectorMethodSignature")
-    private void bottomText(float tickDelta, long startTime, boolean tick, CallbackInfo ci, int i, int j, MatrixStack matrixStack) {
+    private void bottomText(float tickDelta, long startTime, boolean tick, CallbackInfo ci, int i, int j, MatrixStack matrixStack, DrawContext drawContext) {
+        drawContext.draw();
+
         if (OkBoomer.CONFIG.iDoNotEndorseTomfoolery()) return;
         if (this.boom$lastScreenBoom >= 1 && OkBoomer.screenRotation == 0) return;
 
@@ -118,7 +124,10 @@ public abstract class GameRendererMixin {
         var window = client.getWindow();
         var textRenderer = client.textRenderer;
 
-        Drawer.fill(BOOM$BOTTOM_STACK,
+        drawContext.getMatrices().push();
+        drawContext.getMatrices().loadIdentity();
+
+        drawContext.fill(
                 0,
                 0,
                 window.getScaledWidth(),
@@ -126,7 +135,7 @@ public abstract class GameRendererMixin {
                 Color.BLACK.argb()
         );
 
-        Drawer.fill(BOOM$BOTTOM_STACK,
+        drawContext.fill(
                 0,
                 window.getScaledHeight(),
                 window.getScaledWidth(),
@@ -147,13 +156,12 @@ public abstract class GameRendererMixin {
         if (oneRotat > 22.5 + 315) bottom_text = "Bottom Text";
 
         float factor = window.getScaledWidth() / (textRenderer.getWidth(bottom_text) + 2f);
-        BOOM$BOTTOM_STACK.push();
-        BOOM$BOTTOM_STACK.scale(factor, 3, 1);
-        textRenderer.draw(BOOM$BOTTOM_STACK, bottom_text, 1, (window.getScaledHeight() + 6) / 3f, Color.WHITE.argb());
-        BOOM$BOTTOM_STACK.pop();
+        drawContext.getMatrices().scale(factor, 3, 1);
+        drawContext.drawText(textRenderer, bottom_text, 1, (int) ((window.getScaledHeight() + 6) / 3f), Color.WHITE.argb(), false);
+        drawContext.getMatrices().pop();
     }
 
-    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/util/math/MatrixStack;IIF)V"))
+    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V"))
     private void transformMouse(Args args) {
         this.boom$mouseVec.set(args.<Number>get(1).floatValue(), args.<Number>get(2).floatValue(), 0, 1);
         this.boom$mouseVec.mul(OkBoomer.mouseTransform);
@@ -166,7 +174,7 @@ public abstract class GameRendererMixin {
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/util/math/MatrixStack;IIF)V",
+                    target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V",
                     shift = At.Shift.AFTER
             )
     )

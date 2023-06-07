@@ -1,18 +1,18 @@
 package io.wispforest.okboomer.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Mixin(DrawableHelper.class)
+@Mixin(DrawContext.class)
 public class DrawableHelperMixin {
 
     @ModifyArgs(method = "enableScissor", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/ScreenRect;<init>(IIII)V"))
-    private static void pushScissors(Args args) {
+    private void pushScissors(Args args) {
         int x = args.<Integer>get(0), y = args.<Integer>get(1);
         int width = args.<Integer>get(2), height = args.<Integer>get(3);
 
