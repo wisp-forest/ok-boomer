@@ -3,12 +3,12 @@ package io.wispforest.okboomer.mixin;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.wispforest.okboomer.OkBoomer;
 import io.wispforest.owo.ui.core.Color;
+import io.wispforest.owo.ui.util.Drawer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.RotationAxis;
-import org.joml.Vector4f;
+import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Mixin(GameRenderer.class)
+@Mixin(value = GameRenderer.class, priority = 2000)
 public abstract class GameRendererMixin {
 
     @Unique
@@ -52,8 +52,7 @@ public abstract class GameRendererMixin {
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/MinecraftClient;getLastFrameDuration()F",
-                    ordinal = 1
+                    target = "Lnet/minecraft/client/gui/screen/Screen;render(Lnet/minecraft/client/util/math/MatrixStack;IIF)V"
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
@@ -79,7 +78,7 @@ public abstract class GameRendererMixin {
         var window = MinecraftClient.getInstance().getWindow();
         this.boom$rotat.loadIdentity();
         this.boom$rotat.translate(window.getScaledWidth() / 2f, window.getScaledHeight() / 2f, 0);
-        this.boom$rotat.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(OkBoomer.screenRotation));
+        this.boom$rotat.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(OkBoomer.screenRotation));
         this.boom$rotat.translate(window.getScaledWidth() / -2f, window.getScaledHeight() / -2f, 0);
 
         modelViewStack.multiplyPositionMatrix(this.boom$rotat.peek().getPositionMatrix());
@@ -108,15 +107,13 @@ public abstract class GameRendererMixin {
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V",
+                    target = "Lnet/minecraft/client/gui/screen/Screen;render(Lnet/minecraft/client/util/math/MatrixStack;IIF)V",
                     shift = At.Shift.AFTER
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     @SuppressWarnings("InvalidInjectorMethodSignature")
-    private void bottomText(float tickDelta, long startTime, boolean tick, CallbackInfo ci, int i, int j, MatrixStack matrixStack, DrawContext drawContext) {
-        drawContext.draw();
-
+    private void bottomText(float tickDelta, long startTime, boolean tick, CallbackInfo ci, int i, int j, MatrixStack matrices) {
         if (OkBoomer.CONFIG.iDoNotEndorseTomfoolery()) return;
         if (this.boom$lastScreenBoom >= 1 && OkBoomer.screenRotation == 0) return;
 
@@ -124,10 +121,11 @@ public abstract class GameRendererMixin {
         var window = client.getWindow();
         var textRenderer = client.textRenderer;
 
-        drawContext.getMatrices().push();
-        drawContext.getMatrices().loadIdentity();
+        matrices.push();
+        matrices.loadIdentity();
 
-        drawContext.fill(
+        Drawer.fill(
+                matrices,
                 0,
                 0,
                 window.getScaledWidth(),
@@ -135,7 +133,8 @@ public abstract class GameRendererMixin {
                 Color.BLACK.argb()
         );
 
-        drawContext.fill(
+        Drawer.fill(
+                matrices,
                 0,
                 window.getScaledHeight(),
                 window.getScaledWidth(),
@@ -156,25 +155,25 @@ public abstract class GameRendererMixin {
         if (oneRotat > 22.5 + 315) bottom_text = "Bottom Text";
 
         float factor = window.getScaledWidth() / (textRenderer.getWidth(bottom_text) + 2f);
-        drawContext.getMatrices().scale(factor, 3, 1);
-        drawContext.drawText(textRenderer, bottom_text, 1, (int) ((window.getScaledHeight() + 6) / 3f), Color.WHITE.argb(), false);
-        drawContext.getMatrices().pop();
+        matrices.scale(factor, 3, 1);
+        textRenderer.draw(matrices, bottom_text, 1, (int) ((window.getScaledHeight() + 6) / 3f), Color.WHITE.argb());
+        matrices.pop();
     }
 
-    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V"))
+    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;render(Lnet/minecraft/client/util/math/MatrixStack;IIF)V"))
     private void transformMouse(Args args) {
         this.boom$mouseVec.set(args.<Number>get(1).floatValue(), args.<Number>get(2).floatValue(), 0, 1);
-        this.boom$mouseVec.mul(OkBoomer.mouseTransform);
+        this.boom$mouseVec.transform(OkBoomer.mouseTransform);
 
-        args.set(1, ((Number) this.boom$mouseVec.x).intValue());
-        args.set(2, ((Number) this.boom$mouseVec.y).intValue());
+        args.set(1, ((Number) this.boom$mouseVec.getX()).intValue());
+        args.set(2, ((Number) this.boom$mouseVec.getY()).intValue());
     }
 
     @Inject(
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V",
+                    target = "Lnet/minecraft/client/gui/screen/Screen;render(Lnet/minecraft/client/util/math/MatrixStack;IIF)V",
                     shift = At.Shift.AFTER
             )
     )
