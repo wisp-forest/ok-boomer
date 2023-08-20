@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Mixin(Mouse.class)
+@Mixin(value = Mouse.class, priority = 500)
 public class MouseMixin {
 
     @Unique private static final Vector4f boom$mouseVec = new Vector4f();
