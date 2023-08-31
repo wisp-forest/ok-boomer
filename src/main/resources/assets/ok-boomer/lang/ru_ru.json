@@ -1,0 +1,36 @@
+{
+  "text.ok-boomer.prefix": [
+    "",
+    { "text": "[", "color": "dark_gray" },
+    { "text": "OK ", "color": "#bb1a34" },
+    { "text": "Boomer", "color": "#fcab40" },
+    { "text": "]", "color": "dark_gray" }
+  ],
+  "key.ok-boomer.boom": [
+    { "translate": "text.ok-boomer.prefix" },
+    " Бум"
+  ],
+  "key.ok-boomer.screen_boom": [
+    { "translate": "text.ok-boomer.prefix" },
+    " Бум экрана"
+  ],
+  "key.ok-boomer.rotat": [
+    { "translate": "text.ok-boomer.prefix" },
+    " Поворт"
+  ],
+  "text.config.ok-boomer.title": [
+    "Настройки ",
+    { "translate": "text.ok-boomer.prefix" }
+  ],
+  "text.config.ok-boomer.option.useCinematicCamera": "Использовать кинематографическую камеру при бумах",
+  "text.config.ok-boomer.option.enableScreenBooming": "Разрешить бумать экраны",
+  "text.config.ok-boomer.option.boomScrollSensitivity": "Чувствительность бумов к прокрутке",
+  "text.config.ok-boomer.option.boomTransition": "Анимация бума",
+  "text.config.ok-boomer.option.defaultBoom": "Бум по умолчанию",
+  "text.config.ok-boomer.option.boomTransitionSpeed": "Скорость анимации бума",
+  "text.config.ok-boomer.category.boomLimits": "Ограничения бума",
+  "text.config.ok-boomer.option.boomLimits.enableLimits": "Включить лимиты",
+  "text.config.ok-boomer.option.boomLimits.allowBoomingOut": "Разрешить негативный бум",
+  "text.config.ok-boomer.option.boomLimits.maxBoom": "Максимальный бум",
+  "text.config.ok-boomer.option.boomLimits.maxScreenBoom": "Максимальный бум экрана"
+}
