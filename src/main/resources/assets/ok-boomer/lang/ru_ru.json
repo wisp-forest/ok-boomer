@@ -30,7 +30,7 @@
   "text.config.ok-boomer.option.boomTransitionSpeed": "Скорость анимации бума",
   "text.config.ok-boomer.category.boomLimits": "Ограничения бума",
   "text.config.ok-boomer.option.boomLimits.enableLimits": "Включить лимиты",
-  "text.config.ok-boomer.option.boomLimits.allowBoomingOut": "Разрешить негативный бум",
+  "text.config.ok-boomer.option.boomLimits.allowBoomingOut": "Разрешить отрицательный бум",
   "text.config.ok-boomer.option.boomLimits.maxBoom": "Максимальный бум",
   "text.config.ok-boomer.option.boomLimits.maxScreenBoom": "Максимальный бум экрана"
 }
