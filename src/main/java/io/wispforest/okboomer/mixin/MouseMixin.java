@@ -36,7 +36,7 @@ public class MouseMixin {
         args.set(1, ((Number) boom$mouseVec.y).doubleValue());
     }
 
-    @ModifyArgs(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDD)Z"))
+    @ModifyArgs(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDDD)Z"))
     private void transformMouseScrollCoordinates(Args args) {
         boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0, 1);
         boom$mouseVec.mul(OkBoomer.mouseTransform);

@@ -58,7 +58,7 @@ public abstract class GameRendererMixin {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     @SuppressWarnings("InvalidInjectorMethodSignature")
-    private void injectScreenBoomer(float tickDelta, long startTime, boolean tick, CallbackInfo ci, int mouseX, int mouseY) {
+    private void injectScreenBoomer(float tickDelta, long startTime, boolean tick, CallbackInfo ci, boolean finishedLoading, int mouseX, int mouseY) {
         if (OkBoomer.currentlyScreenBooming != this.boom$screenBoomEnabled) {
             if (this.boom$screenBoomEnabled) {
                 OkBoomer.screenBoom = 1;
@@ -114,7 +114,7 @@ public abstract class GameRendererMixin {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     @SuppressWarnings("InvalidInjectorMethodSignature")
-    private void bottomText(float tickDelta, long startTime, boolean tick, CallbackInfo ci, int i, int j, MatrixStack matrixStack, DrawContext drawContext) {
+    private void bottomText(float tickDelta, long startTime, boolean tick, CallbackInfo ci, boolean finishedLoading, int i, int j, MatrixStack matrixStack, DrawContext drawContext) {
         drawContext.draw();
 
         if (OkBoomer.CONFIG.iDoNotEndorseTomfoolery()) return;
