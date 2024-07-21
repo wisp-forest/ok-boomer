@@ -27,6 +27,7 @@
   "text.config.ok-boomer.option.boomScrollSensitivity": "Boom Scrolling Sensitivity",
   "text.config.ok-boomer.option.boomTransition": "Boom Transition",
   "text.config.ok-boomer.option.defaultBoom": "Default Boom",
+  "text.config.ok-boomer.option.resumeBoom": "Resume Boom",
   "text.config.ok-boomer.option.boomTransitionSpeed": "Boom Transition Speed",
   "text.config.ok-boomer.category.boomLimits": "Boom Limits",
   "text.config.ok-boomer.option.boomLimits.enableLimits": "Enable Limits",

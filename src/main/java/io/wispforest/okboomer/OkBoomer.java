@@ -19,6 +19,7 @@ public class OkBoomer implements ClientModInitializer {
     public static final io.wispforest.okboomer.OkConfig CONFIG = io.wispforest.okboomer.OkConfig.createAndLoad();
 
     public static double boomDivisor = 1;
+    public static double prevBoomDivisor = CONFIG.defaultBoom();
     public static boolean booming = false;
 
     public static double screenBoom = 1;
@@ -62,10 +63,15 @@ public class OkBoomer implements ClientModInitializer {
 
             if (booming != nowBooming) {
                 if (booming) {
+                    prevBoomDivisor = boomDivisor;
                     boomDivisor = 1;
                     client.options.smoothCameraEnabled = smoothCameraRestoreValue;
                 } else {
-                    boomDivisor = CONFIG.defaultBoom();
+                    if (CONFIG.resumeBoom()) {
+                        boomDivisor = prevBoomDivisor;
+                    } else {
+                        boomDivisor = CONFIG.defaultBoom();
+                    }
                     smoothCameraRestoreValue = client.options.smoothCameraEnabled;
 
                     if (CONFIG.useCinematicCamera()) {

@@ -15,6 +15,8 @@ public class OkBoomerConfigModel {
     @RangeConstraint(min = 2, max = 15)
     public float defaultBoom = 7.5f;
 
+    public boolean resumeBoom = false;
+
     @RangeConstraint(min = .25, max = 5)
     public float boomTransitionSpeed = 1;
 
