@@ -18,8 +18,8 @@ public class MouseMixin {
 
     @Unique private static final Vector4f boom$mouseVec = new Vector4f();
 
-    @ModifyArgs(method = "method_1611", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(DDI)Z"))
-    private static void transformMouseDownCoordinates(Args args) {
+    @ModifyArgs(method = "onMouseButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(DDI)Z"))
+    private void transformMouseDownCoordinates(Args args) {
         boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0, 1);
         boom$mouseVec.mul(OkBoomer.mouseTransform);
 
@@ -27,8 +27,8 @@ public class MouseMixin {
         args.set(1, ((Number) boom$mouseVec.y).doubleValue());
     }
 
-    @ModifyArgs(method = "method_1605", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(DDI)Z"))
-    private static void transformMouseUpCoordinates(Args args) {
+    @ModifyArgs(method = "onMouseButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(DDI)Z"))
+    private void transformMouseUpCoordinates(Args args) {
         boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0, 1);
         boom$mouseVec.mul(OkBoomer.mouseTransform);
 

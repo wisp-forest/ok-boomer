@@ -38,22 +38,22 @@ public abstract class GameRendererMixin {
     @Unique
     private final Vector4f boom$mouseVec = new Vector4f();
 
-    @ModifyVariable(method = "getFov", at = @At(value = "RETURN", shift = At.Shift.BEFORE), ordinal = 0)
-    private double injectBoomer(double fov) {
+    @ModifyVariable(method = "getFov", at = @At(value = "RETURN", shift = At.Shift.BEFORE), ordinal = 1)
+    private float injectBoomer(float fov) {
         if (OkBoomer.CONFIG.boomTransition()) {
             this.boom$lastBoomDivisor += .45 * (OkBoomer.boomDivisor - this.boom$lastBoomDivisor) * boom$interpolator();
         } else {
             this.boom$lastBoomDivisor = OkBoomer.boomDivisor;
         }
 
-        return fov / this.boom$lastBoomDivisor;
+        return (float) (fov / this.boom$lastBoomDivisor);
     }
 
     @Inject(
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/RenderTickCounter;getLastDuration()F",
+                    target = "Lnet/minecraft/client/render/RenderTickCounter;getLastFrameDuration()F",
                     ordinal = 1
             )
     )
@@ -85,8 +85,6 @@ public abstract class GameRendererMixin {
 
         this.boom$rotat.peek().getPositionMatrix().invert();
         OkBoomer.mouseTransform = this.boom$rotat.peek().getPositionMatrix();
-
-        RenderSystem.applyModelViewMatrix();
 
         if (OkBoomer.CONFIG.boomTransition()) {
             this.boom$lastScreenBoom += .45 * (OkBoomer.screenBoom - this.boom$lastScreenBoom) * boom$interpolator();
@@ -121,7 +119,7 @@ public abstract class GameRendererMixin {
         var window = client.getWindow();
         var textRenderer = client.textRenderer;
 
-        drawContext.getMatrices().push();
+        drawContext.push();
         drawContext.getMatrices().loadIdentity();
 
         drawContext.fill(
@@ -153,9 +151,10 @@ public abstract class GameRendererMixin {
         if (oneRotat > 22.5 + 315) bottom_text = "Bottom Text";
 
         float factor = window.getScaledWidth() / (textRenderer.getWidth(bottom_text) + 2f);
-        drawContext.getMatrices().scale(factor, 3, 1);
+        drawContext.scale(factor, 3, 1);
         drawContext.drawText(textRenderer, bottom_text, 1, (int) ((window.getScaledHeight() + 6) / 3f), Color.WHITE.argb(), false);
-        drawContext.getMatrices().pop();
+        drawContext.draw();
+        drawContext.pop();
     }
 
     @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V"))
@@ -177,7 +176,6 @@ public abstract class GameRendererMixin {
     )
     private void uninjectScreenBoomer(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
         RenderSystem.getModelViewStack().popMatrix();
-        RenderSystem.applyModelViewMatrix();
     }
 
     private static float boom$nudge(float value, float to) {
@@ -187,5 +185,4 @@ public abstract class GameRendererMixin {
     private static float boom$interpolator() {
         return MinecraftClient.getInstance().getRenderTickCounter().getLastFrameDuration() * OkBoomer.CONFIG.boomTransitionSpeed();
     }
-
 }
