@@ -10,6 +10,8 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
+import org.joml.Matrix3x2fStack;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -34,9 +36,9 @@ public abstract class GameRendererMixin {
     private boolean boom$screenBoomEnabled = false;
 
     @Unique
-    private final MatrixStack boom$rotat = new MatrixStack();
+    private final Matrix3x2fStack boom$rotat = new Matrix3x2fStack();
     @Unique
-    private final Vector4f boom$mouseVec = new Vector4f();
+    private final Vector3f boom$mouseVec = new Vector3f();
 
     @ModifyVariable(method = "getFov", at = @At(value = "RETURN", shift = At.Shift.BEFORE), ordinal = 1)
     private float injectBoomer(float fov) {
@@ -53,11 +55,11 @@ public abstract class GameRendererMixin {
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/RenderTickCounter;getLastFrameDuration()F",
+                    target = "Lnet/minecraft/client/render/RenderTickCounter;getDynamicDeltaTicks()F",
                     ordinal = 1
             )
     )
-    private void injectScreenBoomer(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local(ordinal = 0) int mouseX, @Local(ordinal = 1) int mouseY) {
+    private void injectScreenBoomer(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local(ordinal = 0) int mouseX, @Local(ordinal = 1) int mouseY, @Local DrawContext context) {
         if (OkBoomer.currentlyScreenBooming != this.boom$screenBoomEnabled) {
             if (this.boom$screenBoomEnabled) {
                 OkBoomer.screenBoom = 1;
@@ -68,28 +70,28 @@ public abstract class GameRendererMixin {
             this.boom$screenBoomEnabled = OkBoomer.currentlyScreenBooming;
         }
 
-        final var modelViewStack = RenderSystem.getModelViewStack();
-        modelViewStack.pushMatrix();
+        context.push();
 
-        modelViewStack.translate(this.boom$lastMouseX, this.boom$lastMouseY, 0);
-        modelViewStack.scale(this.boom$lastScreenBoom, this.boom$lastScreenBoom, 1);
-        modelViewStack.translate(-this.boom$lastMouseX, -this.boom$lastMouseY, 0);
+        context.translate(this.boom$lastMouseX, this.boom$lastMouseY);
+        context.scale(this.boom$lastScreenBoom, this.boom$lastScreenBoom);
+        context.translate(-this.boom$lastMouseX, -this.boom$lastMouseY);
 
         var window = MinecraftClient.getInstance().getWindow();
-        this.boom$rotat.loadIdentity();
-        this.boom$rotat.translate(window.getScaledWidth() / 2f, window.getScaledHeight() / 2f, 0);
-        this.boom$rotat.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(OkBoomer.screenRotation));
-        this.boom$rotat.translate(window.getScaledWidth() / -2f, window.getScaledHeight() / -2f, 0);
+        this.boom$rotat.identity();
+        this.boom$rotat.translate(window.getScaledWidth() / 2f, window.getScaledHeight() / 2f);
+        this.boom$rotat.rotate((float) Math.toRadians(OkBoomer.screenRotation));
+        this.boom$rotat.translate(window.getScaledWidth() / -2f, window.getScaledHeight() / -2f);
 
-        modelViewStack.mul(this.boom$rotat.peek().getPositionMatrix());
+        context.mul(this.boom$rotat);
+        context.push();
 
-        this.boom$rotat.peek().getPositionMatrix().invert();
-        OkBoomer.mouseTransform = this.boom$rotat.peek().getPositionMatrix();
+        this.boom$rotat.invert();
+        OkBoomer.mouseTransform = this.boom$rotat;
 
         if (OkBoomer.CONFIG.boomTransition()) {
             this.boom$lastScreenBoom += .45 * (OkBoomer.screenBoom - this.boom$lastScreenBoom) * boom$interpolator();
-            this.boom$lastMouseX += .65 * (mouseX - this.boom$lastMouseX) * tickCounter.getLastFrameDuration();
-            this.boom$lastMouseY += .65 * (mouseY - this.boom$lastMouseY) * tickCounter.getLastFrameDuration();
+            this.boom$lastMouseX += .65 * (mouseX - this.boom$lastMouseX) * tickCounter.getDynamicDeltaTicks();
+            this.boom$lastMouseY += .65 * (mouseY - this.boom$lastMouseY) * tickCounter.getDynamicDeltaTicks();
 
             this.boom$lastScreenBoom = boom$nudge(this.boom$lastScreenBoom, 1);
             this.boom$lastMouseX = boom$nudge(this.boom$lastMouseX, mouseX);
@@ -110,8 +112,6 @@ public abstract class GameRendererMixin {
             )
     )
     private void bottomText(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local DrawContext drawContext) {
-        drawContext.draw();
-
         if (OkBoomer.CONFIG.iDoNotEndorseTomfoolery()) return;
         if (this.boom$lastScreenBoom >= 1 && OkBoomer.screenRotation == 0) return;
 
@@ -119,8 +119,8 @@ public abstract class GameRendererMixin {
         var window = client.getWindow();
         var textRenderer = client.textRenderer;
 
+        drawContext.pop();
         drawContext.push();
-        drawContext.getMatrices().loadIdentity();
 
         drawContext.fill(
                 0,
@@ -151,15 +151,14 @@ public abstract class GameRendererMixin {
         if (oneRotat > 22.5 + 315) bottom_text = "Bottom Text";
 
         float factor = window.getScaledWidth() / (textRenderer.getWidth(bottom_text) + 2f);
-        drawContext.scale(factor, 3, 1);
+        drawContext.scale(factor, 3);
         drawContext.drawText(textRenderer, bottom_text, 1, (int) ((window.getScaledHeight() + 6) / 3f), Color.WHITE.argb(), false);
-        drawContext.draw();
         drawContext.pop();
     }
 
     @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V"))
     private void transformMouse(Args args) {
-        this.boom$mouseVec.set(args.<Number>get(1).floatValue(), args.<Number>get(2).floatValue(), 0, 1);
+        this.boom$mouseVec.set(args.<Number>get(1).floatValue(), args.<Number>get(2).floatValue(), 0);
         this.boom$mouseVec.mul(OkBoomer.mouseTransform);
 
         args.set(1, ((Number) this.boom$mouseVec.x).intValue());
@@ -174,8 +173,8 @@ public abstract class GameRendererMixin {
                     shift = At.Shift.AFTER
             )
     )
-    private void uninjectScreenBoomer(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
-        RenderSystem.getModelViewStack().popMatrix();
+    private void uninjectScreenBoomer(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local DrawContext context) {
+        context.getMatrices().popMatrix();
     }
 
     private static float boom$nudge(float value, float to) {
@@ -183,6 +182,6 @@ public abstract class GameRendererMixin {
     }
 
     private static float boom$interpolator() {
-        return MinecraftClient.getInstance().getRenderTickCounter().getLastFrameDuration() * OkBoomer.CONFIG.boomTransitionSpeed();
+        return MinecraftClient.getInstance().getRenderTickCounter().getDynamicDeltaTicks() * OkBoomer.CONFIG.boomTransitionSpeed();
     }
 }

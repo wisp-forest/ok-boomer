@@ -30,7 +30,7 @@
   "depends": {
     "fabricloader": "*",
     "fabric": "*",
-    "minecraft": ">=1.20.5",
-    "owo-lib": ">=0.11.3"
+    "minecraft": ">=1.21.6",
+    "owo-lib": ">=0.12.21"
   }
 }

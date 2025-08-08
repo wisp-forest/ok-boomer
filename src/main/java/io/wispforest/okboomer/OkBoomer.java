@@ -10,6 +10,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import org.joml.Matrix3x2f;
+import org.joml.Matrix3x2fc;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
@@ -28,7 +30,7 @@ public class OkBoomer implements ClientModInitializer {
 
     public static boolean currentlyRotatIng = false;
 
-    public static Matrix4f mouseTransform = new Matrix4f().identity();
+    public static Matrix3x2fc mouseTransform = new Matrix3x2f();
 
     private static boolean smoothCameraRestoreValue = false;
 

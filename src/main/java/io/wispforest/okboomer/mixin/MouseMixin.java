@@ -3,7 +3,7 @@ package io.wispforest.okboomer.mixin;
 import io.wispforest.okboomer.OkBoomer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
-import org.joml.Vector4f;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 @Mixin(value = Mouse.class, priority = 500)
 public class MouseMixin {
 
-    @Unique private static final Vector4f boom$mouseVec = new Vector4f();
+    @Unique private static final Vector3f boom$mouseVec = new Vector3f();
 
     @ModifyArgs(method = "onMouseButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(DDI)Z"))
     private void transformMouseDownCoordinates(Args args) {
-        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0, 1);
+        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0);
         boom$mouseVec.mul(OkBoomer.mouseTransform);
 
         args.set(0, ((Number) boom$mouseVec.x).doubleValue());
@@ -29,7 +29,7 @@ public class MouseMixin {
 
     @ModifyArgs(method = "onMouseButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(DDI)Z"))
     private void transformMouseUpCoordinates(Args args) {
-        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0, 1);
+        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0);
         boom$mouseVec.mul(OkBoomer.mouseTransform);
 
         args.set(0, ((Number) boom$mouseVec.x).doubleValue());
@@ -38,7 +38,7 @@ public class MouseMixin {
 
     @ModifyArgs(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDDD)Z"))
     private void transformMouseScrollCoordinates(Args args) {
-        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0, 1);
+        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0);
         boom$mouseVec.mul(OkBoomer.mouseTransform);
 
         args.set(0, ((Number) boom$mouseVec.x).doubleValue());
