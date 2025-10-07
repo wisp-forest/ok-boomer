@@ -30,35 +30,42 @@ public class OkBoomer implements ClientModInitializer {
 
     public static boolean currentlyRotatIng = false;
 
+    public static Matrix3x2fc renderTransform = new Matrix3x2f();
     public static Matrix3x2fc mouseTransform = new Matrix3x2f();
 
     private static boolean smoothCameraRestoreValue = false;
 
     public static final KeyBinding BOOM_BINDING = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("key.ok-boomer.boom", GLFW.GLFW_KEY_C, KeyBinding.MISC_CATEGORY)
+            new KeyBinding("key.ok-boomer.boom", GLFW.GLFW_KEY_C, KeyBinding.Category.MISC)
     );
 
     public static final KeyBinding SCREEN_BOOM_BINDING = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("key.ok-boomer.screen_boom", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.MISC_CATEGORY)
+            new KeyBinding("key.ok-boomer.screen_boom", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.Category.MISC)
     );
 
     public static final KeyBinding ROTAT_BINDING = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("key.ok-boomer.rotat", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.MISC_CATEGORY)
+            new KeyBinding("key.ok-boomer.rotat", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.Category.MISC)
     );
 
     @Override
     public void onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            var control = InputUtil.isKeyPressed(client.getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL)
+                || InputUtil.isKeyPressed(client.getWindow(), GLFW.GLFW_KEY_RIGHT_CONTROL);
+
+            var shift = InputUtil.isKeyPressed(client.getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)
+                || InputUtil.isKeyPressed(client.getWindow(), GLFW.GLFW_KEY_RIGHT_SHIFT);
+
             if (SCREEN_BOOM_BINDING.isUnbound()) {
                 currentlyScreenBooming = OkBoomer.CONFIG.enableScreenBooming()
                         && isPressed(BOOM_BINDING)
-                        && ((Screen.hasControlDown() && Screen.hasShiftDown()) || currentlyScreenBooming);
+                        && ((control && shift) || currentlyScreenBooming);
             } else {
                 currentlyScreenBooming = OkBoomer.CONFIG.enableScreenBooming() && isPressed(SCREEN_BOOM_BINDING);
             }
 
             currentlyRotatIng = isPressed(ROTAT_BINDING)
-                    && ((Screen.hasControlDown() && Screen.hasShiftDown()) || currentlyRotatIng);
+                    && ((control && shift) || currentlyRotatIng);
 
             boolean nowBooming = isPressed(BOOM_BINDING)
                     && client.currentScreen == null;
@@ -90,13 +97,13 @@ public class OkBoomer implements ClientModInitializer {
         var boundKey = KeyBindingHelper.getBoundKeyOf(binding);
         if (boundKey.getCode() < 0) return false;
 
-        var windowHandle = MinecraftClient.getInstance().getWindow().getHandle();
+        var window = MinecraftClient.getInstance().getWindow();
         if (boundKey.getCategory() == InputUtil.Type.KEYSYM) {
-            return InputUtil.isKeyPressed(windowHandle, boundKey.getCode());
+            return InputUtil.isKeyPressed(window, boundKey.getCode());
         }
 
         if (boundKey.getCategory() == InputUtil.Type.MOUSE) {
-            return ((MouseAccessor) MinecraftClient.getInstance().mouse).boom$getActiveButton() == boundKey.getCode();
+            return ((MouseAccessor) MinecraftClient.getInstance().mouse).boom$getActiveButton().button() == boundKey.getCode();
         }
 
         return false;

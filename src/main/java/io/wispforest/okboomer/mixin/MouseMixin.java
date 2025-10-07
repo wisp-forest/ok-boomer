@@ -1,15 +1,14 @@
 package io.wispforest.okboomer.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import io.wispforest.okboomer.OkBoomer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
+import net.minecraft.client.gui.Click;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
@@ -18,27 +17,17 @@ public class MouseMixin {
 
     @Unique private static final Vector3f boom$mouseVec = new Vector3f();
 
-    @ModifyArgs(method = "onMouseButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(DDI)Z"))
-    private void transformMouseDownCoordinates(Args args) {
-        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0);
+    @ModifyVariable(method = "onMouseButton", at = @At(value = "STORE"), ordinal = 0)
+    private Click transformMouseDownCoordinates(Click click) {
+        boom$mouseVec.set(click.x(), click.y(), 1);
         boom$mouseVec.mul(OkBoomer.mouseTransform);
 
-        args.set(0, ((Number) boom$mouseVec.x).doubleValue());
-        args.set(1, ((Number) boom$mouseVec.y).doubleValue());
-    }
-
-    @ModifyArgs(method = "onMouseButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(DDI)Z"))
-    private void transformMouseUpCoordinates(Args args) {
-        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0);
-        boom$mouseVec.mul(OkBoomer.mouseTransform);
-
-        args.set(0, ((Number) boom$mouseVec.x).doubleValue());
-        args.set(1, ((Number) boom$mouseVec.y).doubleValue());
+        return new Click(boom$mouseVec.x, boom$mouseVec.y, click.buttonInfo());
     }
 
     @ModifyArgs(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDDD)Z"))
     private void transformMouseScrollCoordinates(Args args) {
-        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 0);
+        boom$mouseVec.set(args.<Number>get(0).floatValue(), args.<Number>get(1).floatValue(), 1);
         boom$mouseVec.mul(OkBoomer.mouseTransform);
 
         args.set(0, ((Number) boom$mouseVec.x).doubleValue());

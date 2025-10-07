@@ -10,6 +10,7 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
+import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fStack;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -36,7 +37,10 @@ public abstract class GameRendererMixin {
     private boolean boom$screenBoomEnabled = false;
 
     @Unique
-    private final Matrix3x2fStack boom$rotat = new Matrix3x2fStack();
+    private final Matrix3x2f boom$rotat = new Matrix3x2f();
+    @Unique
+    private final Matrix3x2f boom$render = new Matrix3x2f();
+
     @Unique
     private final Vector3f boom$mouseVec = new Vector3f();
 
@@ -59,7 +63,7 @@ public abstract class GameRendererMixin {
                     ordinal = 1
             )
     )
-    private void injectScreenBoomer(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local(ordinal = 0) int mouseX, @Local(ordinal = 1) int mouseY, @Local DrawContext context) {
+    private void injectScreenBoomer(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local(ordinal = 0) int mouseX, @Local(ordinal = 1) int mouseY) {
         if (OkBoomer.currentlyScreenBooming != this.boom$screenBoomEnabled) {
             if (this.boom$screenBoomEnabled) {
                 OkBoomer.screenBoom = 1;
@@ -70,11 +74,10 @@ public abstract class GameRendererMixin {
             this.boom$screenBoomEnabled = OkBoomer.currentlyScreenBooming;
         }
 
-        context.push();
-
-        context.translate(this.boom$lastMouseX, this.boom$lastMouseY);
-        context.scale(this.boom$lastScreenBoom, this.boom$lastScreenBoom);
-        context.translate(-this.boom$lastMouseX, -this.boom$lastMouseY);
+        this.boom$render.identity();
+        this.boom$render.translate(this.boom$lastMouseX, this.boom$lastMouseY);
+        this.boom$render.scale(this.boom$lastScreenBoom, this.boom$lastScreenBoom);
+        this.boom$render.translate(-this.boom$lastMouseX, -this.boom$lastMouseY);
 
         var window = MinecraftClient.getInstance().getWindow();
         this.boom$rotat.identity();
@@ -82,10 +85,10 @@ public abstract class GameRendererMixin {
         this.boom$rotat.rotate((float) Math.toRadians(OkBoomer.screenRotation));
         this.boom$rotat.translate(window.getScaledWidth() / -2f, window.getScaledHeight() / -2f);
 
-        context.mul(this.boom$rotat);
-        context.push();
+        this.boom$render.mul(this.boom$rotat);
 
         this.boom$rotat.invert();
+        OkBoomer.renderTransform = this.boom$render;
         OkBoomer.mouseTransform = this.boom$rotat;
 
         if (OkBoomer.CONFIG.boomTransition()) {
@@ -119,7 +122,6 @@ public abstract class GameRendererMixin {
         var window = client.getWindow();
         var textRenderer = client.textRenderer;
 
-        drawContext.pop();
         drawContext.push();
 
         drawContext.fill(
@@ -158,23 +160,11 @@ public abstract class GameRendererMixin {
 
     @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V"))
     private void transformMouse(Args args) {
-        this.boom$mouseVec.set(args.<Number>get(1).floatValue(), args.<Number>get(2).floatValue(), 0);
+        this.boom$mouseVec.set(args.<Number>get(1).floatValue(), args.<Number>get(2).floatValue(), 1);
         this.boom$mouseVec.mul(OkBoomer.mouseTransform);
 
         args.set(1, ((Number) this.boom$mouseVec.x).intValue());
         args.set(2, ((Number) this.boom$mouseVec.y).intValue());
-    }
-
-    @Inject(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/gui/DrawContext;IIF)V",
-                    shift = At.Shift.AFTER
-            )
-    )
-    private void uninjectScreenBoomer(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local DrawContext context) {
-        context.getMatrices().popMatrix();
     }
 
     private static float boom$nudge(float value, float to) {

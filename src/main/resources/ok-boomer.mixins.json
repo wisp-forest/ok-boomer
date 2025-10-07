@@ -4,10 +4,12 @@
   "package": "io.wispforest.okboomer.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "DrawableHelperMixin",
+    "DrawContextMixin",
     "GameRendererMixin",
+    "GuiRendererMixin",
     "KeyBindingMixin",
-    "MouseMixin",
-    "DrawableHelperMixin"
+    "MouseMixin"
   ],
   "injectors": {
     "defaultRequire": 1
