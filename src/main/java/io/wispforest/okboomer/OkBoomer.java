@@ -7,12 +7,10 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fc;
-import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
@@ -36,15 +34,15 @@ public class OkBoomer implements ClientModInitializer {
     private static boolean smoothCameraRestoreValue = false;
 
     public static final KeyBinding BOOM_BINDING = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("key.ok-boomer.boom", GLFW.GLFW_KEY_C, KeyBinding.Category.MISC)
+        new KeyBinding("key.ok-boomer.boom", GLFW.GLFW_KEY_C, KeyBinding.Category.MISC)
     );
 
     public static final KeyBinding SCREEN_BOOM_BINDING = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("key.ok-boomer.screen_boom", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.Category.MISC)
+        new KeyBinding("key.ok-boomer.screen_boom", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.Category.MISC)
     );
 
     public static final KeyBinding ROTAT_BINDING = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("key.ok-boomer.rotat", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.Category.MISC)
+        new KeyBinding("key.ok-boomer.rotat", GLFW.GLFW_KEY_UNKNOWN, KeyBinding.Category.MISC)
     );
 
     @Override
@@ -58,17 +56,17 @@ public class OkBoomer implements ClientModInitializer {
 
             if (SCREEN_BOOM_BINDING.isUnbound()) {
                 currentlyScreenBooming = OkBoomer.CONFIG.enableScreenBooming()
-                        && isPressed(BOOM_BINDING)
-                        && ((control && shift) || currentlyScreenBooming);
+                    && isPressed(BOOM_BINDING)
+                    && ((control && shift) || currentlyScreenBooming);
             } else {
                 currentlyScreenBooming = OkBoomer.CONFIG.enableScreenBooming() && isPressed(SCREEN_BOOM_BINDING);
             }
 
             currentlyRotatIng = isPressed(ROTAT_BINDING)
-                    && ((control && shift) || currentlyRotatIng);
+                && ((control && shift) || currentlyRotatIng);
 
             boolean nowBooming = isPressed(BOOM_BINDING)
-                    && client.currentScreen == null;
+                && client.currentScreen == null;
 
             if (booming != nowBooming) {
                 if (booming) {
@@ -103,7 +101,8 @@ public class OkBoomer implements ClientModInitializer {
         }
 
         if (boundKey.getCategory() == InputUtil.Type.MOUSE) {
-            return ((MouseAccessor) MinecraftClient.getInstance().mouse).boom$getActiveButton().button() == boundKey.getCode();
+            var activeButton = ((MouseAccessor) MinecraftClient.getInstance().mouse).boom$getActiveButton();
+            return activeButton != null && activeButton.button() == boundKey.getCode();
         }
 
         return false;
