@@ -1,4 +1,5 @@
 {
+  "owo:rich_translations": true,
   "text.ok-boomer.prefix": [
     "",
     { "text": "[", "color": "dark_gray" },
